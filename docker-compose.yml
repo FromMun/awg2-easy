@@ -1,24 +1,27 @@
-volumes:
-  etc_wireguard:
-
 services:
-  amnezia-wg-easy:
-    env_file:
-      - .env
-    image: ghcr.io/w0rng/amnezia-wg-easy
-    container_name: amnezia-wg-easy
+  awg2-easy:
+    image: ghcr.io/FromMun/awg2-easy:latest
+    container_name: awg2-easy
+    environment:
+      - WG_HOST=YOUR_SERVER_IP
+      - WG_PORT=51820
+      - WG_CONFIG_PORT=51825
+      - WG_PATH=/etc/amnezia/amneziawg
+      - PORT=51821
+      - WG_DEFAULT_ADDRESS=10.8.0.x
+      # Generate with: docker run --rm node:18-alpine sh -c "npm install bcryptjs --silent && node -e \"require('bcryptjs').hash('YOUR_PASSWORD',12).then(h=>console.log(h))\""
+      - PASSWORD_HASH=
     volumes:
-      - etc_wireguard:/etc/wireguard
+      - ./data:/etc/amnezia/amneziawg
     ports:
-      - "${WG_PORT}:${WG_PORT}/udp"
-      - "${PORT}:${PORT}/tcp"
+      - "51825:51820/udp"
+      - "8080:51821/tcp"
     restart: unless-stopped
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
-      # - NET_RAW # ⚠️ Uncomment if using Podman
     sysctls:
       - net.ipv4.ip_forward=1
       - net.ipv4.conf.all.src_valid_mark=1
     devices:
-    - /dev/net/tun:/dev/net/tun
+      - /dev/net/tun:/dev/net/tun

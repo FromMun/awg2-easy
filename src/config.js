@@ -8,6 +8,7 @@ module.exports.WEBUI_HOST = process.env.WEBUI_HOST || '0.0.0.0';
 module.exports.PASSWORD_HASH = process.env.PASSWORD_HASH;
 module.exports.MAX_AGE = parseInt(process.env.MAX_AGE, 10) * 1000 * 60 || 0;
 module.exports.WG_PATH = process.env.WG_PATH || '/etc/wireguard/';
+module.exports.WG_INTERFACE = process.env.WG_INTERFACE || 'awg0';
 module.exports.WG_DEVICE = process.env.WG_DEVICE || 'eth0';
 module.exports.WG_HOST = process.env.WG_HOST;
 module.exports.WG_PORT = process.env.WG_PORT || '51820';
@@ -24,16 +25,16 @@ module.exports.WG_PRE_UP = process.env.WG_PRE_UP || '';
 module.exports.WG_POST_UP = process.env.WG_POST_UP || `
 iptables -t nat -A POSTROUTING -s ${module.exports.WG_DEFAULT_ADDRESS.replace('x', '0')}/24 -o ${module.exports.WG_DEVICE} -j MASQUERADE;
 iptables -A INPUT -p udp -m udp --dport ${module.exports.WG_PORT} -j ACCEPT;
-iptables -A FORWARD -i wg0 -j ACCEPT;
-iptables -A FORWARD -o wg0 -j ACCEPT;
+iptables -A FORWARD -i ${module.exports.WG_INTERFACE} -j ACCEPT;
+iptables -A FORWARD -o ${module.exports.WG_INTERFACE} -j ACCEPT;
 `.split('\n').join(' ');
 
 module.exports.WG_PRE_DOWN = process.env.WG_PRE_DOWN || '';
 module.exports.WG_POST_DOWN = process.env.WG_POST_DOWN || `
 iptables -t nat -D POSTROUTING -s ${module.exports.WG_DEFAULT_ADDRESS.replace('x', '0')}/24 -o ${module.exports.WG_DEVICE} -j MASQUERADE;
 iptables -D INPUT -p udp -m udp --dport ${module.exports.WG_PORT} -j ACCEPT;
-iptables -D FORWARD -i wg0 -j ACCEPT;
-iptables -D FORWARD -o wg0 -j ACCEPT;
+iptables -D FORWARD -i ${module.exports.WG_INTERFACE} -j ACCEPT;
+iptables -D FORWARD -o ${module.exports.WG_INTERFACE} -j ACCEPT;
 `.split('\n').join(' ');
 module.exports.LANG = process.env.LANG || 'en';
 module.exports.UI_TRAFFIC_STATS = process.env.UI_TRAFFIC_STATS || 'false';
@@ -50,7 +51,9 @@ module.exports.USE_GRAVATAR = process.env.USE_GRAVATAR || false;
 const getRandomInt = (min, max) => min + Math.floor(Math.random() * (max - min));
 const getRandomJunkSize = () => getRandomInt(15, 150);
 const getRandomHeader = () => getRandomInt(1, 2_147_483_647);
+const getRandomInitSize = () => getRandomInt(1, 1500);
 
+// AWG 1.x fields
 module.exports.JC = process.env.JC || getRandomInt(3, 10);
 module.exports.JMIN = process.env.JMIN || 50;
 module.exports.JMAX = process.env.JMAX || 1000;
@@ -60,3 +63,12 @@ module.exports.H1 = process.env.H1 || getRandomHeader();
 module.exports.H2 = process.env.H2 || getRandomHeader();
 module.exports.H3 = process.env.H3 || getRandomHeader();
 module.exports.H4 = process.env.H4 || getRandomHeader();
+
+// AWG 2.0 fields
+module.exports.S3 = process.env.S3 || getRandomJunkSize();
+module.exports.S4 = process.env.S4 || getRandomJunkSize();
+module.exports.I1 = process.env.I1 || getRandomInitSize();
+module.exports.I2 = process.env.I2 || getRandomInitSize();
+module.exports.I3 = process.env.I3 || getRandomInitSize();
+module.exports.I4 = process.env.I4 || getRandomInitSize();
+module.exports.I5 = process.env.I5 || getRandomInitSize();

@@ -41,6 +41,7 @@ const {
   PROMETHEUS_METRICS_PASSWORD,
   DICEBEAR_TYPE,
   USE_GRAVATAR,
+  WG_INTERFACE,
 } = require('../config');
 
 const requiresPassword = !!PASSWORD_HASH;
@@ -73,13 +74,19 @@ const cronJobEveryMinute = async () => {
 module.exports = class Server {
 
   constructor() {
-    const app = createApp();
+    const app = createApp({
+      onError: (error, event) => {
+        // eslint-disable-next-line no-console
+        console.error(`[${event.node.req.method}] ${event.node.req.url}`, error);
+      },
+    });
     this.app = app;
 
     app.use(fromNodeMiddleware(expressSession({
       secret: crypto.randomBytes(256).toString('hex'),
       resave: true,
       saveUninitialized: true,
+      name: `${WG_INTERFACE}.sid`,
     })));
 
     const router = createRouter();

@@ -4,20 +4,17 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - master
+      - main
 
 jobs:
   deploy:
     name: Build & Deploy
     runs-on: ubuntu-latest
-    if: github.repository_owner == 'w0rng'
     permissions:
       packages: write
       contents: read
     steps:
     - uses: actions/checkout@v4
-      with:
-        ref: master
 
     - name: Set up QEMU
       uses: docker/setup-qemu-action@v3
@@ -39,5 +36,7 @@ jobs:
       uses: docker/build-push-action@v6
       with:
         push: true
-        platforms: linux/amd64,linux/arm/v6,linux/arm/v7,linux/arm64/v8
-        tags: ghcr.io/w0rng/amnezia-wg-easy:latest, ghcr.io/w0rng/amnezia-wg-easy:${{ env.RELEASE }}
+        platforms: linux/amd64,linux/arm64
+        tags: |
+          ghcr.io/${{ github.repository_owner }}/awg2-easy:latest
+          ghcr.io/${{ github.repository_owner }}/awg2-easy:${{ env.RELEASE }}
