@@ -30,7 +30,9 @@ jobs:
         password: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set environment variables
-      run: echo RELEASE=$(cat ./src/package.json | jq -r .release | jq -r .version) >> $GITHUB_ENV
+      run: |
+        echo RELEASE=$(cat ./src/package.json | jq -r .release | jq -r .version) >> $GITHUB_ENV
+        echo "OWNER_LC=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
 
     - name: Build & Publish Docker Image
       uses: docker/build-push-action@v6
@@ -38,5 +40,5 @@ jobs:
         push: true
         platforms: linux/amd64,linux/arm64
         tags: |
-          ghcr.io/${{ github.repository_owner }}/awg2-easy:latest
-          ghcr.io/${{ github.repository_owner }}/awg2-easy:${{ env.RELEASE }}
+          ghcr.io/${{ env.OWNER_LC }}/awg2-easy:latest
+          ghcr.io/${{ env.OWNER_LC }}/awg2-easy:${{ env.RELEASE }}
